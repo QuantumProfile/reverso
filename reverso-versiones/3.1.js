@@ -463,11 +463,84 @@ function texto(tipo){
     fondo.style.width='100%';
     fondo.style.height='100%';
     fondo.style.backgroundColor='blueviolet';
-    cuadro.style.width='100%';
+    fondo.style.border='2px solid saddlebrown';
+    fondo.style.borderRadius='5px';
+    fondo.style.boxSizing='border-box';
+    //fondo.style.display='flex';
+    //fondo.style.padding='-50px';
+
+    cuadro.style.width='calc(100% + 4px)';
     cuadro.style.height='80%';
     cuadro.style.backgroundColor='olivedrab';
+    cuadro.style.border='2px solid coral';
+    cuadro.style.marginTop='-2px';
+    cuadro.style.marginLeft='-2px';
+    cuadro.style.borderRadius='5px';
+    cuadro.style.boxSizing='border-box';
+    //cuadro.style.left='2px';
+    
+    let botonCopiar=document.createElement('div');
+    botonCopiar.style.width='100%';
+    //botonCopiar.style.marginLeft='-2px';
+    botonCopiar.style.backgroundColor='darkolivegreen';
+    botonCopiar.style.opacity='1';
+    //botonCopiar.style.marginTop='-2px';
+    botonCopiar.style.height='20%';
+    //botonCopiar.style.marginTop='-80%';
 
     fondo.appendChild(cuadro);
+    fondo.appendChild(botonCopiar);
+    botonCopiar.textContent='Copiar';
+    botonCopiar.style.display='flex';
+    botonCopiar.style.justifyContent='center';
+    botonCopiar.style.alignItems='center';
+    botonCopiar.style.textAlign='center';
+
+
+    botonCopiar.onclick=()=>{
+        let mensaje=document.createElement('div');
+        mensaje.style.background='#222';
+        //mensaje.style.opacity='0.65';
+        mensaje.textContent='Se ha copiado correctamente';
+        mensaje.style.position='fixed';
+        mensaje.style.bottom='20px';
+        mensaje.style.color='white';
+        mensaje.style.width='100%';
+        mensaje.style.height='10%';
+        mensaje.style.textAlign='center';
+        mensaje.style.alignItems='center';
+        mensaje.style.justifyContent='center';
+        mensaje.style.display='flex';
+        //mensaje.className='test';
+        document.body.appendChild(mensaje);
+
+        //mensaje.style.transitionProperty='opacity';
+        //mensaje.style.transitionDuration='20s';
+        //mensaje.style.transitionDelay='20s';
+        
+        let it=0;let op=0.64;
+        let disappear=()=>{
+            if(it>64){
+                clearInterval(time);
+                document.body.removeChild(mensaje);
+            }
+            else if(it>30&&it<64){
+                it++;op-=0.02;
+                mensaje.style.opacity=op.toString();
+            }else it++;
+            /*if(it>=20){
+                clearInterval(time);
+                document.body.removeChild(mensaje);
+            }else{
+                it++;op-=0.05
+                mensaje.style.opacity=op.toString();
+            }*/
+        }
+        let time=setInterval(disappear,10);
+
+        //document.querySelectorAll('.test:click')
+    }
+
     body.appendChild(tablabody.element);
     tablabody.getCell(2,1).appendChild(fondo);
     return {arriba:tablabody.getCell(1,1),fondo:fondo,body:body,cuadro:cuadro,tabla:tablabody};
@@ -489,6 +562,7 @@ pos.alignInside(tablaTest.getCell(2,1),body1.body,'center');
 
 let body2=new Table('1fr 1fr 1fr 1fr','1fr');
 tablaTest.getCell(3,1).appendChild(body2.element);
+
 
 
 //let body3=document.createElement('div');
