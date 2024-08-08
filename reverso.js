@@ -339,53 +339,173 @@ const estadoDefault={
     "animaciones":true,
     "extra":true
 };
-
-let colores={
-    fondo:'#595959',
-    fondoPrincipal:'#a6a6a6',
-    fondoSecundario:'#7f7f7f',
-    bordePrincipal:'#00cc99',
-    bordeSecundario:'#6b37ff',
+const coloresDefault={
+    fondo:'#131313',
+    fondoPrincipal:'#242424',
+    fondoSecundario:'#1c1c1c',
+    bordePrincipal:'#1c7',
+    bordeSecundario:'#a454ff',
     textos:'white'
 };
-function setModo(modo){
-    if(modo=='oscuro'){
-        colores.fondo='#595959';
-        colores.fondoPrincipal='#a6a6a6';
-        colores.fondoSecundario='#7f7f7f';
-        colores.bordePrincipal='#00cc99';
-        colores.bordeSecundario='#6b37ff';
-        colores.textos='white';
+
+let colores={
+    fondo:'',
+    fondoPrincipal:'',
+    fondoSecundario:'',
+    bordePrincipal:'',
+    bordeSecundario:'',
+    textos:''
+}
+
+function render(){
+    document.body.style.backgroundColor=getColores().fondo;
+    //set styles
+    let elements=document.getElementsByClassName('colorize');
+    for(let i=0;i<elements.length;i++){
+        let element=elements[i];
+        let colorRules=JSON.parse(CSSInteracter.getCustomAttribute(element,'colors'));
+        let toModify={
+            backgroundColor:'',
+            borderColor:'',
+            color:''
+        }
+        for(let key in toModify){
+            if(colorRules.hasOwnProperty(key)){
+                element.style[key]=getColores()[colorRules[key]];
+            }
+        }
+
+    }
+    //set extra
+    let elements2=document.getElementsByClassName('include');
+    for(let i=0;i<elements2.length;i++){
+        let father=document.getElementById(CSSInteracter.getCustomAttribute(elements2[i],'fatherId'));
+        //console.log('Estado extra:');
+        //console.log(getEstado().extra);
+        //console.log('_______________');
+        /*if(getEstado().extra){
+            //elements2[i].style.display='none';
+            if(!(father.contains(elements2[i])))father.appendChild(elements2[i]);
+        }else if(father.contains(elements2[i]))father.removeChild(elements2[i]);*/
+        if(getEstado().extra){
+            elements2[i].style.display='flex';
+            document.getElementById('info').style.display='flex';
+        }else {
+            elements2[i].style.display='none';
+            document.getElementById('info').style.display='none';
+        }
     }
 }
 
-let estado;
-document.addEventListener('DOMContentLoaded',(event)=>{
+function setColores(objeto){
+    for(let key in objeto){
+        if(colores.hasOwnProperty(key)){
+            colores[key]=objeto[key];
+        }
+        render();
+    }
+}
+function getColores(){
+    return JSON.parse(JSON.stringify(colores));
+}
+
+let momento={
+    fondo:'#fff',
+    fondoPrincipal:'#bbb',
+    fondoSecundario:'#ddd',
+    bordePrincipal:'#5f9',
+    bordeSecundario:'#c466ff',
+    textos:'#131313'
+}
+function setModo(modo){
+    if(modo=='oscuro'){
+        colores.fondo='#131313';
+        colores.fondoPrincipal='#242424';
+        colores.fondoSecundario='#1c1c1c';
+        colores.bordePrincipal='#1c7';
+        colores.bordeSecundario='#a454ff';
+        colores.textos='white';
+    }
+    else if(modo=='claro'){
+        colores.fondo='#fff';
+        colores.fondoPrincipal='#bbb';
+        colores.fondoSecundario='#ddd';
+        colores.bordePrincipal='#5f9';
+        colores.bordeSecundario='#c466ff';
+        colores.textos='#131313';
+    }
+    console.log(colores);
+}
+
+let estado={
+    orientacion:'',
+    automatico:'',
+    tema:'',
+    animaciones:'',
+    extra:''
+};
+function setEstado(objeto){
+    for(let key in objeto){
+        if(estado.hasOwnProperty(key)){
+            estado[key]=objeto[key];
+        }
+        render();
+    }
+}
+function getEstado(){
+    return JSON.parse(JSON.stringify(estado));
+}
+
+//Main
+document.addEventListener('DOMContentLoaded',()=>{
+    if(localStorage.getItem('estado')==null){
+        setEstado(estadoDefault);
+    }
+    else{
+        setEstado(JSON.parse(localStorage.getItem('estado')));
+    }
+    if(localStorage.getItem('colores')==null){
+        setColores(coloresDefault);
+    }
+    else{
+        setColores(JSON.parse(localStorage.getItem('colores')));
+    }
+    localStorage.setItem('estado',JSON.stringify(getEstado()));
+    localStorage.setItem('colores',JSON.stringify(getColores()));
+});
+
+function actualizarEstado(propiedad,valor){
     if(localStorage.getItem('estado')==null){
         estado=estadoDefault;
         localStorage.setItem('estado',JSON.stringify(estadoDefault));
-        setModo(estado.tema);
+        //setModo(estado.tema);
     }
     else{
         estado=JSON.parse(localStorage.getItem('estado'));
-        setModo(estado.tema);
+        estado[propiedad]=valor;
+        localStorage.setItem('estado',JSON.stringify(estado));
+        //setModo(estado.tema);
     }
-});
-
-function actualizarEstado(estadoNuevo){
-    estado=estadoNuevo;
-    localStorage.setItem('estado',JSON.stringify(estadoNuevo));
 }
 
 let wide=false;
 var estadoActual=[];
 function actualizarDiseño(){
     for(let i=0;i<estadoActual;i++){
-        estadoActual[i].objeto=colores[estadoActual[i].propiedad];
+        if(estadoActual[i].Antes!='NoLeer'){
+            estadoActual[i].objeto[estadoActual[i].Antes]=colores[estadoActual[i].Despues];
+        }else{
+            estadoActual[i].objeto=colores[estadoActual[i].Despues];
+        }
     }
 }
+function medaFlojera(objeto,antes,despues,style=true){
+    /*let nose=style?objeto.style:objeto;
+    let nose2=style?antes:'NoLeer';
+    estadoActual.push({objeto:nose,Antes:nose2,Despues:despues});*/
+}
 
-
+// lo que hace emmet
 let title=document.createElement('title');
 document.head.appendChild(title);
 title.textContent='textopro';
@@ -427,13 +547,73 @@ let headStuff=new HTMLInteracter();
 normalize();
 
 
-headStuff.addElement('link',document.head);
-headStuff.getElement(0).rel='stylesheet';
-headStuff.getElement(0).type='text/css';
-headStuff.getElement(0).href='reverso3.css';
-headStuff.addElement('link',document.head);
-headStuff.getElement(1).rel='stylesheet';
-headStuff.getElement(1).href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css';
+//headStuff.addElement('link',document.head);
+//headStuff.getElement(0).rel='stylesheet';
+//headStuff.getElement(0).type='text/css';
+//headStuff.getElement(0).href='reverso3.css';
+//headStuff.addElement('link',document.head);
+//headStuff.getElement(1).rel='stylesheet';
+//headStuff.getElement(1).href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css';
+
+class Utilidades{
+    static revert(string){
+        return string.split('').reverse().join('');
+    }
+    static flip(string){
+        let before='abcdefghijklmnopqrstuvwxyz?!_})]<>[({‾¡¿zʎxʍʌnʇsɹbdouɯlʞɾıɥƃɟǝpɔqɐ';
+        let after='ɐqɔpǝɟƃɥıɾʞlɯuodbɹsʇnʌʍxʎz¿¡‾{([><])}_!?zyxwvutsrqponmlkjihgfedcba';
+        let response=[];
+        for(let i=0;i<string.length;i++){
+            let character=string[i].toLowerCase();
+            for(let j=0;j<before.length;j++){
+                if(string[i].toLowerCase()==before[j])character=after[j];
+            }
+            response.push(character);
+        }
+        return response.reverse().join('');
+    }
+    static swapCase(string){
+        let before='AaBbCcDdEeFfGgHhIiJjKkLlMmNnÑñOoPpQqRrSsTtUuVvWwXxYyZzÁáÉéÍíÓóÚúÄäËëÏïÖöÜüÇçÀàÈèÌìÒòÙùÂâÊêÎîÔôÛû';
+        let after='aAbBcCdDeEfFgGhHiIjJkKlLmMnNñÑoOpPqQrRsStTuUvVwWxXyYzZáÁéÉíÍóÓúÚäÄëËïÏöÖüÜçÇàÀèÈìÌòÒùÙâÂêÊîÎôÔûÛ';
+        let response=[];
+        for(let i=0;i<string.length;i++){
+            let character=string[i];
+            for(let j=0;j<before.length;j++){
+                if(string[i]==before[j])character=after[j];
+            }
+            response.push(character);
+        }
+        return response.join('');
+    }
+    static randomCase(string){
+        let response=[];
+        for(let i=0;i<string.length;i++){
+            let character=string[i];
+            if(Boolean(Math.floor(Math.random()*2)))character=Utilidades.swapCase(character);
+            response.push(character);
+        }
+        /*for(let i=0;i<response;i++){
+            if(Boolean(Math.floor(Math.random()*2)))response[i]=Utilidades.swapCase(response[i]);
+        }*/
+        return response.join('');
+    }
+    static noSpaces(string){
+        return string.trim().split(' ').join('');
+    }
+    static unbanWords(string){
+        let before='AaBcDEeHIiJjKLMNnOoPpQqSsTuWwXxYZ';
+        let after='ΑаΒϲⱰΕеΗІіЈϳΚԼΜΝոΟοΡрԚԛЅѕΤսԜԝΧхҮΖ';
+        let response=[];
+        for(let i=0;i<string.length;i++){
+            let character=string[i];
+            for(let j=0;j<before.length;j++){
+                if(string[i]==before[j])character=after[j];
+            }
+            response.push(character);
+        }
+        return response.join('');
+    }
+}
 
 /*let test=new HTMLInteracter();
 test.addElement('div');
@@ -496,11 +676,23 @@ function insertarTexto(elemento,texto,alineacion='center'){
 function header(where){
     let header= new Table('1fr 3fr 1fr','1fr');
     let boton=document.createElement('div');
-    boton.style.backgroundColor=colores.fondoPrincipal;
-    boton.style.minWidth='50px';
-    boton.style.minHeight='50px';
+    //boton.style.backgroundColor=colores.fondoPrincipal;
+    boton.classList.add('colorize');
+    CSSInteracter.setCustomAttribute(boton,'colors',JSON.stringify({
+        backgroundColor:'fondoPrincipal',
+        borderColor:'bordeSecundario',
+    }));
+    medaFlojera(boton,'backgroundColor','fondoPrincipal');
+    //console.log(estadoActual);
+    //console.log(colores);
+    //estadoActual.push({objeto:boton.style.backgroundColor,propiedad:'fondoPrincipal'});
+    boton.style.minWidth='30px';
+    boton.style.minHeight='30px';
     boton.style.padding='10px';
-    boton.style.border='2px solid '+colores.bordeSecundario;
+    boton.style.borderStyle='solid';
+    boton.style.borderWidth='2px';
+    //boton.style.border='2px solid '+colores.bordeSecundario;
+    medaFlojera(boton,'borderColor','bordeSecundario');
     boton.style.borderRadius='5px';
     boton.style.cursor='pointer';
     boton.style.position='relative';
@@ -524,7 +716,11 @@ function header(where){
     header.getCell(1,2).style.fontFamily='Verdana';
     header.getCell(1,2).style.lineHeight='1';
     header.getCell(1,2).style.paddingBottom='5px';
-    header.getCell(1,2).style.color=colores.bordePrincipal;
+    header.getCell(1,2).classList.add('colorize');
+    CSSInteracter.setCustomAttribute(header.getCell(1,2),'colors',JSON.stringify({
+        color:'bordePrincipal'
+    }));
+    medaFlojera(header.getCell(1,1),'color','bordePrincipal');
 
     let tapador=document.createElement('div');
     tapador.style.width='100vw';
@@ -539,17 +735,24 @@ function header(where){
         menu.style.left='30vw';
         let iteracionador=0;let left=30;
         let right=61.6;
-        let timer=setInterval(()=>{
-            if(iteracionador>13){
-                clearInterval(timer);
-                if(document.body.contains(menu))document.body.removeChild(menu);
-            }else{
-                iteracionador++;
-                left+=5;right-=4.4;
-                menu.style.left=String(left)+'vw';
-                boton.style.right=String(right)+'vw'
-            }
-        },5);
+        if(getEstado().animaciones){
+            let timer=setInterval(()=>{
+                if(iteracionador>13){
+                    clearInterval(timer);
+                    if(document.body.contains(menu))document.body.removeChild(menu);
+                }else{
+                    iteracionador++;
+                    left+=5;right-=4.4;
+                    menu.style.left=String(left)+'vw';
+                    boton.style.right=String(right)+'vw';
+                }
+            },5);
+        }else{
+            left+=70;right-=61.6;
+            menu.style.left=String(left)+'vw';
+            boton.style.right=String(right)+'vw';
+            if(document.body.contains(menu))document.body.removeChild(menu);
+        }
         if(document.body.contains(tapador))document.body.removeChild(tapador);
         seDebeTapar=true;
     }
@@ -557,8 +760,15 @@ function header(where){
     tapador.onclick=quitar;
     
     let menu=document.createElement('div');
-    menu.style.backgroundColor=colores.fondoSecundario;
-    menu.style.border='2px solid '+colores.bordePrincipal;
+    menu.classList.add('colorize');
+    CSSInteracter.setCustomAttribute(menu,'colors',JSON.stringify({
+        backgroundColor:'fondoSecundario',
+        borderColor:'bordePrincipal'
+    }));
+    medaFlojera(menu,'backgroundColor','fondoSecundario');
+    menu.style.borderWidth='2px';
+    menu.style.borderStyle='solid';
+    medaFlojera(menu,'borderColor','bordePrincipal');
     menu.style.height='100%';
     menu.style.width='70%';
     menu.style.position='absolute';
@@ -577,22 +787,97 @@ function header(where){
         opciones[i].style.width='100%';
         opciones[i].style.height='100%';
         opciones[i].style.borderRadius='5px';
-        opciones[i].style.backgroundColor=colores.fondoPrincipal;
-        opciones[i].style.color=colores.fondo;
+        //opciones[i].style.backgroundColor=colores.fondoPrincipal;
+        medaFlojera(opciones[i],'backgroundColor','fondoPrincipal');
+        opciones[i].classList.add('colorize');
+        CSSInteracter.setCustomAttribute(opciones[i],'colors',JSON.stringify({
+            backgroundColor:'fondoPrincipal',
+            color:'textos'
+        }));
+        //opciones[i].style.color=colores.fondo;
+        medaFlojera(opciones[i],'color','fondo');
         opciones[i].style.fontFamily='Verdana';
         opciones[i].style.fontSize='15px';
         opciones[i].style.cursor='pointer';
     }
-    insertarTexto(opciones[0],'modo automático');
-    insertarTexto(opciones[1],'modo oscuro');
-    insertarTexto(opciones[2],'Animaciones');
-    insertarTexto(opciones[3],'más botones');
+    insertarTexto(opciones[0],'modo '+(localStorage.getItem('estado')==null?'automático':(JSON.parse(localStorage.getItem('estado')).automatico?'automático':JSON.parse(localStorage.getItem('estado')).orientacion)));
+
+    insertarTexto(opciones[1],'modo '+(localStorage.getItem('estado')==null?'oscuro':JSON.parse(localStorage.getItem('estado')).tema));
+
+    insertarTexto(opciones[2],(localStorage.getItem('estado')==null?'Animaciones':(JSON.parse(localStorage.getItem('estado')).animaciones?'Animaciones':'Sin animaciones')));
+
+    insertarTexto(opciones[3],(localStorage.getItem('estado')==null?'más botones':(JSON.parse(localStorage.getItem('estado')).extra?'más botones':'menos botones')));
+
     insertarTexto(opciones[4],'Resetear configuración');
 
+    opciones[0].onclick=()=>{
+        if(getEstado().automatico==true){
+            opciones[0].textContent='modo vertical';
+            setEstado({
+                automatico:false,
+                orientacion:'vertical'
+            });
+        }else if(getEstado().automatico==false&&getEstado().orientacion=='vertical'){
+            opciones[0].textContent='modo horizontal';
+            setEstado({orientacion:'horizontal'});
+        }
+        else if(getEstado().automatico==false&&getEstado().orientacion=='horizontal'){
+            opciones[0].textContent='modo automático';
+            setEstado({automatico:true});
+        }
+        localStorage.setItem('estado',JSON.stringify(getEstado()));
+    }
+    opciones[1].onclick=()=>{
+        if(getEstado().tema=='oscuro'){
+            opciones[1].textContent='modo claro';
+            setEstado({tema:'claro'});
+            setColores({
+                fondo:'#fff',
+                fondoPrincipal:'#bbb',
+                fondoSecundario:'#ddd',
+                bordePrincipal:'#5f9',
+                bordeSecundario:'#c466ff',
+                textos:'#131313'
+            });
+        }
+        else{
+            opciones[1].textContent='modo oscuro';
+            setEstado({tema:'oscuro'});
+            setColores(coloresDefault);
+        }
+        localStorage.setItem('estado',JSON.stringify(getEstado()));
+        localStorage.setItem('colores',JSON.stringify(getColores()));
+        //console.log(colores);
+    }
+    opciones[2].onclick=()=>{
+        if(getEstado().animaciones){
+            opciones[2].textContent='Sin animaciones';
+            setEstado({animaciones:false});
+        }else{
+            opciones[2].textContent='Animaciones';
+            setEstado({animaciones:true});
+        }
+        localStorage.setItem('estado',JSON.stringify(getEstado()));
+    }
+    opciones[3].onclick=()=>{
+        if(getEstado().extra){
+            opciones[3].textContent='menos botones';
+            setEstado({extra:false});
+        }
+        else{
+            opciones[3].textContent='más botones';
+            setEstado({extra:true});
+        }
+        localStorage.setItem('estado',JSON.stringify(getEstado()));
+    }
 
 
     insertarTexto(tablamenu.getCell(1,1),'Menú de opciones');
-    tablamenu.getCell(1,1).style.color=colores.bordeSecundario;
+    tablamenu.getCell(1,1).classList.add('colorize');
+    CSSInteracter.setCustomAttribute(tablamenu.getCell(1,1),'colors',JSON.stringify({
+        color:'bordeSecundario'
+    }));
+    medaFlojera(tablamenu.getCell(1,1),'color','bordeSecundario');
     tablamenu.getCell(1,1).style.fontFamily='Verdana';
     tablamenu.getCell(1,1).style.fontSize='30px';
     tablamenu.getCell(2,1).appendChild(opciones[0]);
@@ -613,18 +898,25 @@ function header(where){
             seDebeTapar=false;
             let iteracionador=0;let left=100;
             let right=0;
-            let timer=setInterval(()=>{
-                if(iteracionador>13){
-                    clearInterval(timer);
-                }else{
-                    iteracionador++;
-                    left-=5;right+=4.4;
-                    menu.style.left=String(left)+'vw';
-                    boton.style.right=String(right)+'vw';
-                }
-            },5);
+            if(getEstado().animaciones){
+                let timer=setInterval(()=>{
+                    if(iteracionador>13){
+                        clearInterval(timer);
+                    }else{
+                        iteracionador++;
+                        left-=5;right+=4.4;
+                        menu.style.left=String(left)+'vw';
+                        boton.style.right=String(right)+'vw';
+                    }
+                },5);
+            }else{
+                left-=70;right+=61.6;
+                menu.style.left=String(left)+'vw';
+                boton.style.right=String(right)+'vw';
+            }
         }
         else quitar();
+        render();
     }
 
     where.appendChild(header.element);
@@ -654,12 +946,34 @@ function texto(tipo){
         repetir.style.fontSize='70%';
         insertarTexto(repetir,'Volver a usar mismo texto');
         repetir.style.fontFamily='Verdana';
-        repetir.style.color=colores.fondo;
-        repetir.style.backgroundColor=colores.fondoPrincipal;
+        repetir.classList.add('colorize');
+        CSSInteracter.setCustomAttribute(repetir,'colors',JSON.stringify({
+            color:'textos',
+            borderColor:'bordePrincipal',
+            backgroundColor:'fondoPrincipal'
+        }));
+        medaFlojera(repetir,'color','fondo');
+        medaFlojera(repetir,'backgroundColor','fondoPrincipal');
         repetir.style.cursor='pointer';
-        repetir.style.border='2px solid '+colores.bordePrincipal;
+        repetir.style.borderWidth='2px';
+        repetir.style.borderStyle='solid';
+        medaFlojera(repetir,'borderColor','bordePrincipal');
         repetir.style.borderRadius='5px';
         tablabody.getCell(1,1).appendChild(repetir);
+
+        repetir.onclick=()=>{
+            /*let input=document.getElementById('texto-input');
+            let output=document.getElementById('texto-output');
+            output.textContent=input.value;
+            let OtroEspejo=document.getElementById('btcinco');
+            let OtroGirar=document.getElementById('btseis');
+            //OtroEspejo.textContent='No';
+            //OtroGirar.textContent='No';
+            console.log(OtroEspejo);
+            console.log(OtroGirar);*/
+            let output=document.getElementById('texto-output');
+            output.textContent='Este botón está inhabilitado por cuestiones de bugs, puedes realizar lo que debería haber hecho este botón, simplemente desactivando Espejo horizontal y Girar 180°, insertando una letra y borrándola, disculpe las molestias';
+        }
     }else if(tipo=='output'){
         type='div';
         coso='auto';
@@ -667,21 +981,52 @@ function texto(tipo){
 
         insertarTexto(tablabody.getCell(1,1),texto);
         tablabody.getCell(1,1).style.fontFamily='Verdana';
-        tablabody.getCell(1,1).style.color=colores.textos;
+        tablabody.getCell(1,1).classList.add('colorize');
+        CSSInteracter.setCustomAttribute(tablabody.getCell(1,1),'colors',JSON.stringify({
+            color:'textos'
+        }));
+        medaFlojera(tablabody.getCell(1,1),'color','textos');
     }
     let cuadro=document.createElement(type);
     let fondo=document.createElement('div');
+    cuadro.style.fontFamily='Verdana';
+
+
     if(coso=='auto'){
         cuadro.style.overflow=coso;
+        cuadro.id='texto-output';
+        cuadro.style.display='flex';
+        cuadro.style.textAlign='center';
+        cuadro.style.alignItems='center';
+        cuadro.style.justifyContent='center';
     }
     else if(coso=='none'){
         cuadro.placeholder='Insertar texto';
         cuadro.style.resize=coso;
+        cuadro.style.outline=coso;
+        cuadro.id='texto-input';
+
+        cuadro.onkeyup=()=>{
+            let dondePegar=document.getElementById('texto-output');
+            let UnEspejo=document.getElementById('btcinco');
+            let UnGirar=document.getElementById('btseis');
+            let quePegar=cuadro.value;
+            if(UnEspejo.textContent=='Sí')quePegar=Utilidades.revert(quePegar);
+            if(UnGirar.textContent=='Sí')quePegar=Utilidades.flip(quePegar);
+            dondePegar.textContent=quePegar;
+        };
     }
     fondo.style.width='100%';
     fondo.style.height='100%';
-    fondo.style.backgroundColor=colores.fondoSecundario;
-    fondo.style.border='2px solid '+colores.bordeSecundario;
+    fondo.classList.add('colorize');
+    CSSInteracter.setCustomAttribute(fondo,'colors',JSON.stringify({
+        backgroundColor:'fondoSecundario',
+        borderColor:'bordeSecundario'
+    }));
+    medaFlojera(fondo,'backgroundColor','fondoSecundario');
+    fondo.style.borderWidth='2px';
+    fondo.style.borderStyle='solid';
+    medaFlojera(fondo,'borderColor','bordeSecundario');
     fondo.style.borderRadius='5px';
     fondo.style.boxSizing='border-box';
     //fondo.style.display='flex';
@@ -689,8 +1034,16 @@ function texto(tipo){
 
     cuadro.style.width='calc(100% + 4px)';
     cuadro.style.height='80%';
-    cuadro.style.backgroundColor=colores.fondoPrincipal;
-    cuadro.style.border='2px solid '+colores.bordePrincipal;
+    cuadro.classList.add('colorize');
+    CSSInteracter.setCustomAttribute(cuadro,'colors',JSON.stringify({
+        backgroundColor:'fondoPrincipal',
+        borderColor:'bordePrincipal',
+        color:'textos'
+    }));
+    medaFlojera(cuadro,'backgroundColor','fondoPrincipal');
+    cuadro.style.borderWidth='2px';
+    cuadro.style.borderStyle='solid';
+    medaFlojera(cuadro,'borderColor','bordePrincipal');
     cuadro.style.marginTop='-2px';
     cuadro.style.marginLeft='-2px';
     cuadro.style.borderRadius='5px';
@@ -710,11 +1063,22 @@ function texto(tipo){
     fondo.appendChild(botonCopiar);
     insertarTexto(botonCopiar,'Copiar');
     botonCopiar.style.fontFamily='Verdana';
-    botonCopiar.style.color=colores.textos;
+    botonCopiar.classList.add('colorize');
+    CSSInteracter.setCustomAttribute(botonCopiar,'colors',JSON.stringify({
+        color:'textos'
+    }));
+    medaFlojera(botonCopiar,'color','textos');
     botonCopiar.style.cursor='pointer';
 
 
     botonCopiar.onclick=()=>{
+        let copiador=document.createElement('input');
+        document.body.appendChild(copiador);
+        copiador.value=cuadro.id=='texto-input'?cuadro.value:cuadro.textContent;
+        copiador.select();
+        document.execCommand('copy');
+        document.body.removeChild(copiador);
+
         let mensaje=document.createElement('div');
         mensaje.style.background='#222';
         //mensaje.style.opacity='0.65';
@@ -737,25 +1101,32 @@ function texto(tipo){
         //mensaje.style.transitionDuration='20s';
         //mensaje.style.transitionDelay='20s';
         
-        let it=0;let op=0.64;
-        let disappear=()=>{
-            if(it>103){
-                clearInterval(time);
-                document.body.removeChild(mensaje);
+        if(getEstado().animaciones){
+            let it=0;let op=0.64;
+            let disappear=()=>{
+                if(it>103){
+                    clearInterval(time);
+                    document.body.removeChild(mensaje);
+                }
+                else if(it>70&&it<103){
+                    it++;op-=0.02;
+                    mensaje.style.opacity=op.toString();
+                }else it++;
+                /*if(it>=20){
+                    clearInterval(time);
+                    document.body.removeChild(mensaje);
+                }else{
+                    it++;op-=0.05
+                    mensaje.style.opacity=op.toString();
+                }*/
             }
-            else if(it>70&&it<103){
-                it++;op-=0.02;
-                mensaje.style.opacity=op.toString();
-            }else it++;
-            /*if(it>=20){
-                clearInterval(time);
+            let time=setInterval(disappear,10);
+        }else{
+            let time=setTimeout(()=>{
+                clearTimeout(time);
                 document.body.removeChild(mensaje);
-            }else{
-                it++;op-=0.05
-                mensaje.style.opacity=op.toString();
-            }*/
+            },1040);
         }
-        let time=setInterval(disappear,10);
 
         //document.querySelectorAll('.test:click')
     }
@@ -788,7 +1159,8 @@ function body2(where){
     body2.getCell(1,4).appendChild(botones4.element);
     //console.log(body2.element);
 
-    function setearBotones(padre,boton,accion,tipo,texto,alineacion='center'){
+    function setearBotones(id,padre,boton,accion,tipo,texto,alineacion='center'){
+        boton.style.fontFamily='Verdana';
         let colorBorde;let colorFondo;
         let colorBorde2;let colorFondo2;
         let width1;let width2;
@@ -796,8 +1168,9 @@ function body2(where){
         let tamañoLetra1;let tamañoLetra2;
         let active;
         if(tipo=='tipo 1'){
-            colorBorde=colores.bordeSecundario;
-            colorFondo=colores.fondoSecundario;
+            colorBorde='bordeSecundario';
+            //medaFlojera(colorBorde,'backgroundColor','fondoPrincipal');
+            colorFondo='fondoSecundario';
             width1='80%';
             height1='80%';
             width2='100%';
@@ -807,8 +1180,9 @@ function body2(where){
             active='#666';
         }
         else if(tipo=='tipo 2'){
-            colorBorde=colores.bordePrincipal;
-            colorFondo=colores.fondoPrincipal;
+            colorBorde='bordePrincipal';
+            colorFondo='fondoPrincipal';
+
             width1='60%';
             height1='60%';
             width2='70%';
@@ -818,14 +1192,22 @@ function body2(where){
             active='#888';
         }
         let setearstilo=()=>{
-            boton.style.border='2px solid '+colorBorde;
+            boton.style.borderWidth='2px';
+            boton.style.borderStyle='solid';
+            boton.classList.add('colorize');
+            CSSInteracter.setCustomAttribute(boton,'colors',JSON.stringify({
+                backgroundColor:colorFondo,
+                borderColor:colorBorde,
+                color:'textos'
+            }));
+            medaFlojera(boton,'borderColor',colorBorde); 
             boton.style.borderRadius='5px';
-            boton.style.backgroundColor=colorFondo;
+            medaFlojera(boton,'backgroundColor',colorFondo); 
             boton.style.width=width1;
             boton.style.height=height1;
             insertarTexto(boton,texto);
             boton.style.cursor='pointer';
-            boton.style.color=colores.textos;
+            medaFlojera(boton,'color','textos'); 
             boton.style.fontSize=tamañoLetra1;
         }
         setearstilo();
@@ -838,27 +1220,55 @@ function body2(where){
             let asd=setInterval(()=>{
                 if(iteracion>25){
                     clearInterval(asd);
-                    boton.style.backgroundColor=colorFondo;
+                    boton.style.backgroundColor=colores[colorFondo];
                     iteracion=0;
                 }else iteracion++;
-            },10)
+            },10);
         }
         boton.onmouseover=()=>{
             boton.style.width=width2;
             boton.style.height=height2;
-            boton.style.border='3px solid '+colorBorde2;
-            boton.style.backgroundColor=colorFondo2;
+            boton.style.border='3px solid '+colores[colorBorde2];
+            boton.style.backgroundColor=colores[colorFondo2];
             boton.style.fontSize=tamañoLetra2;
         }
-        boton.onmouseout=setearstilo;
+        boton.onmouseout=()=>{
+            let juas=boton.textContent;
+            setearstilo();
+            boton.textContent=juas;
+        };
         //boton.onmouseup=setearstilo;
         boton.onclick=()=>{
             accion();
             //boton.style.backgroundColor=active;
         };
+        //render();
+        if(tipo=='tipo 1')boton.classList.add('include');
         padre.appendChild(boton);
-        let posi=new Positioner();
+        let posi = new Positioner();
         posi.alignInside(padre,boton,alineacion);
+        posi.history[0].positioner.id=id;
+        CSSInteracter.setCustomAttribute(boton,'fatherId',id);
+        /*if(tipo=='tipo 2'){
+            padre.appendChild(boton);
+            let posi=new Positioner();
+            posi.alignInside(padre,boton,alineacion);
+        }else if(localStorage.getItem('estado')==null){
+            padre.appendChild(boton);
+            let posi=new Positioner();
+            posi.alignInside(padre,boton,alineacion);
+            posi.history[0].positioner.id=id;
+            CSSInteracter.setCustomAttribute(boton,'fatherId',id);
+        }else if(JSON.parse(localStorage.getItem('estado')).extra){
+            padre.appendChild(boton);
+            let posi=new Positioner();
+            posi.alignInside(padre,boton,alineacion);
+            posi.history[0].positioner.id=id;
+            //console.log('posicionador');
+            //console.log(posi.history[0].positioner);
+            //console.log('-------------------------');
+            CSSInteracter.setCustomAttribute(boton,'fatherId',id);
+        }*/
     }
 
     let IMm=document.createElement('div');
@@ -870,21 +1280,130 @@ function body2(where){
 
     insertarTexto(botones2.getCell(1,1),'Espejo horizontal?');
     botones2.getCell(1,1).style.fontFamily='Verdana';
-    botones2.getCell(1,1).style.color=colores.textos;
+    botones2.getCell(1,1).classList.add('colorize');
+    CSSInteracter.setCustomAttribute(botones2.getCell(1,1),'colors',JSON.stringify({
+        color:'textos'
+    }));
+    medaFlojera(botones2.getCell(1,1),'color','textos'); 
+
     insertarTexto(botones3.getCell(1,1),'Girar 180°?');
     botones3.getCell(1,1).style.fontFamily='Verdana';
-    botones3.getCell(1,1).style.color=colores.textos;
+    botones3.getCell(1,1).classList.add('colorize');
+    CSSInteracter.setCustomAttribute(botones3.getCell(1,1),'colors',JSON.stringify({
+        color:'textos'
+    }));
+    medaFlojera(botones3.getCell(1,1),'color','textos'); 
 
 
-    
+    //IMm Mma sinEspacios desPal
+    let cososqsy=[IMm,Mma,sinEspacios,desPal];
 
-
-    setearBotones(botones1.getCell(1,1),IMm,()=>{},'tipo 1','Invertir mayúsculas y minúsculas');
-    setearBotones(botones1.getCell(2,1),Mma,()=>{},'tipo 1','Mayúsculas y minúsculas aleatorias');
-    setearBotones(botones4.getCell(1,1),sinEspacios,()=>{},'tipo 1','Sin espacios');
-    setearBotones(botones4.getCell(2,1),desPal,()=>{},'tipo 1','Desbanear palabras');
-    setearBotones(botones2.getCell(2,1),espejo,()=>{},'tipo 2','No','top-center');
-    setearBotones(botones3.getCell(2,1),girar,()=>{},'tipo 2','No','top-center');
+    let input;
+    let output;
+    console.log(input);
+    setearBotones('btuno',botones1.getCell(1,1),IMm,()=>{
+        input=document.getElementById('texto-input');
+        output=document.getElementById('texto-output');
+        if(output.textContent==''){
+            output.textContent=Utilidades.swapCase(input.value);
+        }
+        else{
+            output.textContent=Utilidades.swapCase(output.textContent);
+        }
+        //CSSInteracter.setCustomAttribute(output,'texto',Utilidades.swapCase(input.value));
+    },'tipo 1','Invertir mayúsculas y minúsculas');
+    setearBotones('btdos',botones1.getCell(2,1),Mma,()=>{
+        input=document.getElementById('texto-input');
+        output=document.getElementById('texto-output');
+        if(output.textContent==''){
+            output.textContent=Utilidades.randomCase(input.value);
+        }
+        else{
+            output.textContent=Utilidades.randomCase(output.textContent);
+        }
+    },'tipo 1','Mayúsculas y minúsculas aleatorias');
+    setearBotones('bttres',botones4.getCell(1,1),sinEspacios,()=>{
+        input=document.getElementById('texto-input');
+        output=document.getElementById('texto-output');
+        if(output.textContent==''){
+            output.textContent=Utilidades.noSpaces(input.value);
+        }
+        else{
+            output.textContent=Utilidades.noSpaces(output.textContent);
+        }
+    },'tipo 1','Sin espacios');
+    setearBotones('btcuatro',botones4.getCell(2,1),desPal,()=>{
+        input=document.getElementById('texto-input');
+        output=document.getElementById('texto-output');
+        if(output.textContent==''){
+            output.textContent=Utilidades.unbanWords(input.value);
+        }
+        else{
+            output.textContent=Utilidades.unbanWords(output.textContent);
+        }
+    },'tipo 1','Desbanear palabras');
+    //tumamita timer setInterval
+    setearBotones('btcinco',botones2.getCell(2,1),espejo,()=>{
+        espejo.textContent=espejo.textContent=='No'?'Sí':'No';
+        input=document.getElementById('texto-input');
+        output=document.getElementById('texto-output');
+        if(!(getEstado().animaciones)){
+            console.log(espejo);
+            if(output.textContent==''){
+                output.textContent=Utilidades.revert(input.value);
+            }
+            else{
+                output.textContent=Utilidades.revert(output.textContent);
+            }
+            return;
+        }
+        let iter=0;let scaleX=1;
+        let timer=setInterval(()=>{
+            if(iter>49){
+                clearInterval(timer);
+                output.style.transform='scaleX(1)';
+                if(output.textContent==''){
+                    output.textContent=Utilidades.revert(input.value);
+                }
+                else{
+                    output.textContent=Utilidades.revert(output.textContent);
+                }
+            }else{
+                iter++;scaleX-=0.04;
+                output.style.transform='scaleX('+scaleX.toString()+')';
+            }
+        },10);
+    },'tipo 2','No','top-center');
+    setearBotones('btseis',botones3.getCell(2,1),girar,()=>{
+        girar.textContent=girar.textContent=='No'?'Sí':'No';
+        input=document.getElementById('texto-input');
+        output=document.getElementById('texto-output');
+        if(!(getEstado().animaciones)){
+            if(output.textContent==''){
+                output.textContent=Utilidades.flip(input.value);
+            }
+            else{
+                output.textContent=Utilidades.flip(output.textContent);
+            }
+            return;
+        }
+        let iter=0;let deg=0;
+        let timer=setInterval(()=>{
+            if(iter>49){
+                clearInterval(timer);
+                output.style.transform='rotate(0deg)';
+                if(output.textContent==''){
+                    output.textContent=Utilidades.flip(input.value);
+                }
+                else{
+                    output.textContent=Utilidades.flip(output.textContent);
+                }
+            }else{
+                iter++;deg-=3.6;
+                output.style.transform='rotate('+deg.toString()+'deg)';
+            }
+        },10);
+    },'tipo 2','No','top-center');
 
     //info----------------------------------------
     /*let info=document.createElement('div');
@@ -984,7 +1503,11 @@ function todo(){
         //test.getElement(0).appendChild(tablaTest.element);
         //var pos = new Positioner();
         //pos.adjust(test.getElement(0),tablaTest.element,'vertical','600px','100%','90%');
-        tablaTest.element.style.backgroundColor=colores.fondo;
+        tablaTest.element.classList.add('colorize');
+        CSSInteracter.setCustomAttribute(tablaTest.element,'colors',JSON.stringify({
+            backgroundColor:'fondo',
+        }));
+        medaFlojera(tablaTest.element,'backgroundColor','fondo'); 
         tablaTest.element.style.paddingTop='5%';
         tablaTest.element.style.paddingBottom='5%';
     
@@ -1002,6 +1525,7 @@ function todo(){
 
         //document.body.appendChild(tablaTest.element);
         //document.body.removeChild(tablaTest.element);
+        
         return tablaTest.element;
         pos.adjust(document.body,tablaTest.element,'vertical','600px','100%','90%');
     }
@@ -1012,7 +1536,11 @@ function todo(){
     
         let tablaTest=new Table('1fr','1fr 2fr 3fr');
         
-        tablaTest.element.style.backgroundColor=colores.fondo;
+        tablaTest.element.classList.add('colorize');
+        CSSInteracter.setCustomAttribute(tablaTest.element,'colors',JSON.stringify({
+            backgroundColor:'fondo',
+        }));
+        medaFlojera(tablaTest.element,'backgroundColor','fondo'); 
         tablaTest.element.style.paddingTop='5%';
         tablaTest.element.style.paddingBottom='5%';
 
@@ -1069,7 +1597,14 @@ document.body.appendChild(asdasdasduwu);
 
 
 let info=document.createElement('div');
-info.style.backgroundColor=colores.textos;
+//info.style.fontFamily='Verdana';
+info.classList.add('colorize');
+CSSInteracter.setCustomAttribute(info,'colors',JSON.stringify({
+    backgroundColor:'textos',
+    color:'fondo'
+}));
+info.id='info';
+medaFlojera(info,'backgroundColor','textos'); 
 //w8,h4
 info.style.width='20px';
 info.style.height='20px';
@@ -1077,7 +1612,7 @@ info.style.position='absolute';
 info.style.zIndex='100';
 info.style.borderRadius='100%';
 insertarTexto(info,'?');
-info.color=colores.fondo;
+medaFlojera(info,'color','fondo'); 
 
 
 
@@ -1091,7 +1626,7 @@ tooltip.style.height='15%';
 tooltip.style.color='black';
 tooltip.style.fontSize='10px';
 
-insertarTexto(tooltip,'Cambia las letras por otros caracteres que se ven iguales a los normales (puede servir para escribir palabras baneadas en twitch');
+insertarTexto(tooltip,'Cambia las letras por otros caracteres que se ven iguales a los normales (puede servir para escribir palabras baneadas en twitch)       Nota: No funciona para todas las palabras');
 
 info.addEventListener('mouseenter',()=>{
     document.body.appendChild(tooltip);
@@ -1117,7 +1652,7 @@ document.body.appendChild(info);
 
 
 
-
+//coso
 if(!wide){
     adjustInside(document.body,asdasdasduwu,'vertical','600px','100%','90%');
     info.style.right='8%';
@@ -1151,22 +1686,23 @@ function asdlollel(){
 });*/
 
 CSSInteracter.mediaQuery('(min-width: 981px)',()=>{
-    document.body.style.backgroundColor='darkslategray';
-    if(estado.automatico||((!(estado.automatico))&&(estado.orientacion=='horizontal')))wide=true;
+    console.log(getColores());
+    if(getEstado().automatico||((!(getEstado().automatico))&&(getEstado().orientacion=='horizontal')))wide=true;
     asdlollel();
+    render();
 },()=>{
-    document.body.style.backgroundColor='green';
-    if(estado.automatico||(!(estado.automatico))&&(estado.orientacion=='vertical'))wide=false;
+    if(getEstado().automatico||(!(getEstado().automatico))&&(getEstado().orientacion=='vertical'))wide=false;
     asdlollel();
+    render();
 });
 CSSInteracter.mediaQuery('(orientation: landscape',()=>{
-    document.body.style.backgroundColor='darkslategray';
-    if(estado.automatico||((!(estado.automatico))&&(estado.orientacion=='horizontal')))wide=true;
+    if(getEstado().automatico||((!(getEstado().automatico))&&(getEstado().orientacion=='horizontal')))wide=true;
     asdlollel();
+    render();
 },()=>{
-    document.body.style.backgroundColor='green';
-    if(estado.automatico||((!(estado.automatico))&&(estado.orientacion=='vertical')))wide=false;
+    if(getEstado().automatico||((!(getEstado().automatico))&&(getEstado().orientacion=='vertical')))wide=false;
     asdlollel();
+    render();
 });
 
 
