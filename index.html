@@ -13,8 +13,64 @@
             margin: 0;
         }
     </style>
+    <script src="package.js"></script>
     <script>
-        
+        /**const header=
+        switch(get(orientation)){
+            case horizontal:
+                break;
+            case vertical:
+                
+        }*/
+
+        const header=match(get('orientation'),
+            [
+                'horizontal',
+
+            ],
+            [
+                'vertical',
+                /**
+                 * widgetTensor(dimensions (rowsxcolumnsxzIndex),
+                 * size of widget/box (in fr or px),
+                 * style (if not given it will be the style
+                 * of the father widget),
+                 * child)
+                 * 
+                 * Text(the actual text,
+                 * font colour
+                 * font size,
+                 * alignment of the text (if not given will be
+                 * center),
+                 * font family,
+                 * line height)
+                 * 
+                 * eventWidget will act just as a wrapper, if you 
+                 * put it no child it will be a div of size 0
+                */
+                widgetTensor('3x1x3','1fr',null,
+                    [[
+                        widgetTensor('1','1fr'),
+                        widgetTensor('1','3fr',null,
+                            Text(
+                                'Invierte tu texto',
+                                myColours('main border'),
+                                '25px',
+                                'bottom-center',
+                                'Verdana'
+                            )
+                        ),
+                        eventWidget('onclick',
+                            ()=>{/*make appear the menu*/},
+                            widgetTensor('1','1fr',
+                                Style('center'),
+                                //this will be the menu button
+                            )
+                        )
+                    ]]
+                )
+            ]
+        )
     </script>
 </body>
 </html>
