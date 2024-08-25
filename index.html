@@ -13,62 +13,39 @@
             margin: 0;
         }
     </style>
-    <script src="package.js"></script>
+    <script src="easierUI.js"></script>
     <script>
-        /**const header=
-        switch(get(orientation)){
-            case horizontal:
-                break;
-            case vertical:
-                
-        }*/
-
-        const header=match(get('orientation'),
-            [
-                'horizontal',
+        const header=orientation=>match(orientation,
+            ['landscape',
 
             ],
-            [
-                'vertical',
-                /**
-                 * widgetTensor(dimensions (rowsxcolumnsxzIndex),
-                 * size of widget/box (in fr or px),
-                 * style (if not given it will be the style
-                 * of the father widget),
-                 * child)
-                 * 
-                 * Text(the actual text,
-                 * font colour
-                 * font size,
-                 * alignment of the text (if not given will be
-                 * center),
-                 * font family,
-                 * line height)
-                 * 
-                 * eventWidget will act just as a wrapper, if you 
-                 * put it no child it will be a div of size 0
-                */
-                widgetTensor('3x1x3','1fr',null,
-                    [[
-                        widgetTensor('1','1fr'),
-                        widgetTensor('1','3fr',null,
-                            Text(
-                                'Invierte tu texto',
-                                myColours('main border'),
-                                '25px',
-                                'bottom-center',
-                                'Verdana'
-                            )
-                        ),
-                        eventWidget('onclick',
-                            ()=>{/*make appear the menu*/},
-                            widgetTensor('1','1fr',
-                                Style('center'),
-                                //this will be the menu button
-                            )
+            ['portrait',
+                widgetTensor({
+                    dimensions:'3x1x3',
+                    size:'1fr x 90%',
+                    content:[[
+                        Empty(),
+                        widgetTensor({ //dimensions = 1 as default
+                            size:'1fr x 3fr',
+                            content:Text({
+                                text:'Invierte tu texto',
+                                color:myColors('main border'),
+                                size:'25px',
+                                alignment:'bottom|center', //There should also be the textAlignment for left, center, right and justify
+                                font:myFont, //Times New Roman,
+                                lineHeight:1,
+                                paddingBottom:'5px'
+                            })
+                        }),
+                        dynWidget(
+                            widgetTensor({
+                                minSize:'30px',
+                                content:myTemplates.menuButton
+                            }),
+                            {click:a=>a+1}
                         )
                     ]]
-                )
+                })
             ]
         )
     </script>
