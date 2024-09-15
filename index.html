@@ -9,27 +9,29 @@
     <style type="text/css">
         *{
             box-sizing: border-box;
-            padding: 0;
-            margin: 0;
         }
     </style>
     <script src="easierUI.js"></script>
     <script>
-        const header=orientation=>match(orientation,
-            ['landscape',
-
-            ],
-            ['portrait',
-                widgetTensor({
+        const app=dynWidget(()=>{
+            const myState=match(
+                SharedPreferences.get('state'),
+                [null,DefaultState],
+                [otherwise,same]
+            )
+            const myColors=myColors(myState.theme);
+            const myThemes=myThemes(myState.theme);
+            const header=()=>{
+                const header=widgetTensor({
                     dimensions:'3x1x3',
-                    size:'1fr x 90%',
+                    size:'1fr',
                     content:[[
-                        Empty(),
+                        Empty,
                         widgetTensor({ //dimensions = 1 as default
                             size:'1fr x 3fr',
                             content:Text({
                                 text:'Invierte tu texto',
-                                color:myColors('main border'),
+                                color:myColors['main border'],
                                 size:'25px',
                                 alignment:'bottom|center', //There should also be the textAlignment for left, center, right and justify
                                 font:myFont, //Times New Roman,
@@ -45,9 +47,59 @@
                             {click:a=>a+1}
                         )
                     ]]
-                })
-            ]
-        )
+                });return header;
+            };
+            const inputPart=()=>{
+                const inputPart=widgetTensor({
+                    size:'1fr x 90%',
+                    dimensions:'2x1',
+                    content:[
+                        dynWidget(
+                            ()=>null,
+                            widgetTensor({
+                                ...myThemes['main box'],
+                                size:'70% x 50%',
+                                content:Text({
+                                    text:'Volver a usar mismo texto',
+                                    color:myColors['main text'],
+                                    size:'70%'
+                                })
+                            })
+                        ),
+                        widgetTensor({
+                            ...myThemes['second box'],
+                            dimensions:'2x1',
+                            size:'1fr',
+                            content:[
+                                dynWidget(
+                                    ()=>undefined,
+                                    TextField({
+                                        ...myThemes['main box'],
+                                        placeholder:'Insertar texto',
+                                        resize:'none',
+                                        outline:'none',
+                                        size:'4fr x calc(100%+4px)'
+                                    })
+                                ),
+                                widgetTensor({
+                                    size:'1fr',
+                                    content:Text({
+                                        text:'Copiar',
+                                        color:myColors['main text']
+                                    })
+                                })
+                            ]
+                        })
+                    ]
+                });return inputPart;
+            };
+            const outputPart=()=>{
+                
+            }
+        },Empty)
+
+            
+
     </script>
 </body>
 </html>
