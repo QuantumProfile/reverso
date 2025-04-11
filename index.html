@@ -1,8 +1,19 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <!-- <p>Basicamente esto está acá porque el puto javascript no me deja ponerlo >:( </p> -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>textopro</title>
 </head>
 <body>
-    <script src="reverso.js"></script>
+    <script>
+        app=Elm.Main.init({
+            node:(function(){
+                const myapp=document.createElement('div');
+                body.appendChild(myapp);
+                return myapp;
+            })()
+        });
+    </script>
 </body>
+</html>
